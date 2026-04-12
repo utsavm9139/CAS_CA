@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import matplotlib
+matplotlib.use("Agg")
+
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -22,8 +25,19 @@ def demo_gkl() -> None:
 
     print("GKL demo final classification:", ca.classify_result(history[-1]), flush=True)
 
-    plot_ca_history(history, title="GKL Benchmark: Space-Time Diagram")
-    plot_boundary_counts(history, title="GKL Benchmark: Boundary Count Over Time")
+    plot_ca_history(
+        history,
+        title="GKL Benchmark: Space-Time Diagram",
+        save_path="Figure_1_GKL_SpaceTime.png",
+        show=False,
+    )
+
+    plot_boundary_counts(
+        history,
+        title="GKL Benchmark: Boundary Count Over Time",
+        save_path="Figure_2_GKL_Boundaries.png",
+        show=False,
+    )
 
     acc = evaluate_gkl_accuracy(n_cells=149, n_samples=100, max_steps=100, seed=0)
     print(f"GKL benchmark accuracy (sampled): {acc:.4f}", flush=True)
@@ -32,7 +46,7 @@ def demo_gkl() -> None:
 def demo_ga() -> np.ndarray:
     ca = CellularAutomaton1D(n_cells=149, radius=3)
 
-    # Small settings for testing first
+    # Smaller settings for testing first
     config = GAConfig(
         population_size=20,
         generations=5,
@@ -48,13 +62,30 @@ def demo_ga() -> np.ndarray:
     best_rule, best_fitness, fitness_history = ga.evolve()
 
     print(f"Best evolved rule fitness: {best_fitness:.4f}", flush=True)
-    plot_fitness_history(fitness_history, title="GA Fitness Over Generations")
+
+    plot_fitness_history(
+        fitness_history,
+        title="GA Fitness Over Generations",
+        save_path="Figure_3_GA_Fitness.png",
+        show=False,
+    )
 
     init_state = ca.random_state(np.random.default_rng(5))
     history = ca.run_lookup_rule(init_state, best_rule, steps=100)
 
-    plot_ca_history(history, title="Best Evolved Rule: Space-Time Diagram")
-    plot_boundary_counts(history, title="Best Evolved Rule: Boundary Count Over Time")
+    plot_ca_history(
+        history,
+        title="Best Evolved Rule: Space-Time Diagram",
+        save_path="Figure_4_Evolved_SpaceTime.png",
+        show=False,
+    )
+
+    plot_boundary_counts(
+        history,
+        title="Best Evolved Rule: Boundary Count Over Time",
+        save_path="Figure_5_Evolved_Boundaries.png",
+        show=False,
+    )
 
     return best_rule
 
@@ -81,7 +112,9 @@ def demo_networks() -> None:
     plt.figure(figsize=(6, 6))
     nx.draw(ws, pos=pos, node_color=node_colors, with_labels=False, node_size=80)
     plt.title("Early Network Experiment: Watts-Strogatz Threshold CA")
-    plt.show()
+    plt.tight_layout()
+    plt.savefig("Figure_6_WS_Graph.png", dpi=200, bbox_inches="tight")
+    plt.close()
 
 
 if __name__ == "__main__":
@@ -93,3 +126,5 @@ if __name__ == "__main__":
 
     print("\n=== Early network experiments ===", flush=True)
     demo_networks()
+
+    print("\nAll figures saved successfully.", flush=True)

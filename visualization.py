@@ -5,9 +5,14 @@ import matplotlib.pyplot as plt
 from typing import List
 
 
-def plot_ca_history(history: List[np.ndarray], title: str = "CA Space-Time Diagram") -> None:
+def plot_ca_history(
+    history: List[np.ndarray],
+    title: str = "CA Space-Time Diagram",
+    save_path: str | None = None,
+    show: bool = False,
+) -> None:
     """
-    Plot the CA states over time as a space-time diagram.
+    Plot CA states over time as a space-time diagram.
     """
     grid = np.array(history)
 
@@ -18,12 +23,20 @@ def plot_ca_history(history: List[np.ndarray], title: str = "CA Space-Time Diagr
     plt.title(title)
     plt.colorbar(label="State")
     plt.tight_layout()
-    plt.show()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=200, bbox_inches="tight")
+
+    if show:
+        plt.show(block=False)
+        plt.pause(0.5)
+
+    plt.close()
 
 
 def boundary_counts(history: List[np.ndarray]) -> np.ndarray:
     """
-    Count the number of domain boundaries in each state.
+    Count the number of domain boundaries in each time step.
     A boundary occurs when adjacent cells differ.
     """
     counts = []
@@ -35,9 +48,14 @@ def boundary_counts(history: List[np.ndarray]) -> np.ndarray:
     return np.array(counts)
 
 
-def plot_boundary_counts(history: List[np.ndarray], title: str = "Boundary Count Over Time") -> None:
+def plot_boundary_counts(
+    history: List[np.ndarray],
+    title: str = "Boundary Count Over Time",
+    save_path: str | None = None,
+    show: bool = False,
+) -> None:
     """
-    Plot the number of boundaries over time.
+    Plot number of boundaries over time.
     """
     counts = boundary_counts(history)
 
@@ -47,12 +65,25 @@ def plot_boundary_counts(history: List[np.ndarray], title: str = "Boundary Count
     plt.ylabel("Number of boundaries")
     plt.title(title)
     plt.tight_layout()
-    plt.show()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=200, bbox_inches="tight")
+
+    if show:
+        plt.show(block=False)
+        plt.pause(0.5)
+
+    plt.close()
 
 
-def plot_fitness_history(fitness_history: List[float], title: str = "Best Fitness Over Generations") -> None:
+def plot_fitness_history(
+    fitness_history: List[float],
+    title: str = "Best Fitness Over Generations",
+    save_path: str | None = None,
+    show: bool = False,
+) -> None:
     """
-    Plot GA best-fitness progression over generations.
+    Plot GA best fitness over generations.
     """
     plt.figure(figsize=(8, 4))
     plt.plot(fitness_history)
@@ -60,4 +91,12 @@ def plot_fitness_history(fitness_history: List[float], title: str = "Best Fitnes
     plt.ylabel("Best fitness")
     plt.title(title)
     plt.tight_layout()
-    plt.show()
+
+    if save_path is not None:
+        plt.savefig(save_path, dpi=200, bbox_inches="tight")
+
+    if show:
+        plt.show(block=False)
+        plt.pause(0.5)
+
+    plt.close()
