@@ -12,22 +12,17 @@ from evaluation import evaluate_lookup_rule_accuracy
 class GAConfig:
     population_size: int = 100
     generations: int = 100
-    mutation_rate: float = 0.01
+    mutation_rate: float = 0.03
     crossover_rate: float = 0.9
     tournament_size: int = 5
-    eval_samples: int = 500
-    max_steps: int = 200
+    eval_samples: int = 300
+    max_steps: int = 320
     seed: int = 42
 
 
 class GeneticAlgorithmCA:
     """
     Genetic Algorithm for evolving 128-bit cellular automaton rules.
-    Matches the project draft:
-    - 128-bit rule representation
-    - tournament selection
-    - single-point crossover
-    - bit-flip mutation
     """
 
     def __init__(self, ca: CellularAutomaton1D, config: GAConfig) -> None:
@@ -37,7 +32,6 @@ class GeneticAlgorithmCA:
         self.rule_length = 128
 
     def initialize_population(self) -> np.ndarray:
-        """Create random initial population of binary rules."""
         return self.rng.integers(
             0,
             2,
@@ -46,7 +40,6 @@ class GeneticAlgorithmCA:
         )
 
     def fitness_population(self, population: np.ndarray) -> np.ndarray:
-        """Evaluate fitness of every individual in the population."""
         fitnesses = np.zeros(len(population), dtype=float)
 
         for i, individual in enumerate(population):
@@ -61,7 +54,6 @@ class GeneticAlgorithmCA:
         return fitnesses
 
     def tournament_select(self, population: np.ndarray, fitnesses: np.ndarray) -> np.ndarray:
-        """Select one parent using tournament selection."""
         indices = self.rng.choice(
             len(population),
             size=self.config.tournament_size,
@@ -75,7 +67,6 @@ class GeneticAlgorithmCA:
         parent1: np.ndarray,
         parent2: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """Perform single-point crossover."""
         if self.rng.random() > self.config.crossover_rate:
             return parent1.copy(), parent2.copy()
 
@@ -87,19 +78,12 @@ class GeneticAlgorithmCA:
         return child1.astype(np.int8), child2.astype(np.int8)
 
     def mutate(self, individual: np.ndarray) -> np.ndarray:
-        """Apply bit-flip mutation."""
         mask = self.rng.random(self.rule_length) < self.config.mutation_rate
         mutated = individual.copy()
         mutated[mask] = 1 - mutated[mask]
         return mutated.astype(np.int8)
 
     def evolve(self) -> Tuple[np.ndarray, float, List[float]]:
-        """
-        Run the GA and return:
-        - best rule found
-        - best fitness
-        - fitness history
-        """
         population = self.initialize_population()
         best_fitness_history: List[float] = []
 
@@ -107,6 +91,8 @@ class GeneticAlgorithmCA:
         best_fitness = -1.0
 
         for gen in range(self.config.generations):
+            print(f"Evaluating generation {gen + 1}/{self.config.generations}...", flush=True)
+
             fitnesses = self.fitness_population(population)
 
             gen_best_idx = int(np.argmax(fitnesses))
@@ -125,7 +111,7 @@ class GeneticAlgorithmCA:
 
             new_population = []
 
-            # Elitism: keep the current best of this generation
+            # Elitism: keep best rule from current generation.
             new_population.append(population[gen_best_idx].copy())
 
             while len(new_population) < self.config.population_size:
@@ -138,6 +124,7 @@ class GeneticAlgorithmCA:
                 child2 = self.mutate(child2)
 
                 new_population.append(child1)
+
                 if len(new_population) < self.config.population_size:
                     new_population.append(child2)
 
